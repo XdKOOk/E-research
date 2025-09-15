@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前沿探索工作流</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>前沿探索工作流</h1>
+            <p class="subtitle">全自动化研究助手</p>
+        </header>
+        
+        <div class="features">
+            <!-- 论文初筛模块 -->
+            <div class="feature-card" id="paper-screening">
+                <div class="feature-icon">📄</div>
+                <h3>论文初筛</h3>
+                <p>定期/手动开始任务，返回论文简介&关注要点</p>
+                <button class="feature-btn" data-feature="paper-screening">开始初筛</button>
+            </div>
+            
+            <!-- Github调研模块 -->
+            <div class="feature-card" id="github-research">
+                <div class="feature-icon">🔍</div>
+                <h3>Github调研</h3>
+                <p>针对性代码仓审核+简介</p>
+                <button class="feature-btn" data-feature="github-research">开始调研</button>
+            </div>
+            
+            <!-- 开源追踪模块 -->
+            <div class="feature-card" id="open-source-tracking">
+                <div class="feature-icon">📊</div>
+                <h3>开源追踪</h3>
+                <p>更新论文对应的github开源情况</p>
+                <button class="feature-btn" data-feature="open-source-tracking">开始追踪</button>
+            </div>
+        </div>
+        
+        <div class="status-section">
+            <h3>任务状态</h3>
+            <div class="status-list" id="status-list">
+                <div class="status-item">
+                    <span class="status-text">暂无运行中的任务</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings">
+            <button class="settings-btn" id="settings-btn">⚙️ 设置</button>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
