@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扩展调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 扩展调试页面</h1>
+        <p>此页面需要在Chrome扩展环境中运行</p>
+        
+        <div id="environment-check"></div>
+        
+        <button onclick="testBackgroundScript()">测试后台脚本</button>
+        <button onclick="testPaperScreening()">测试论文初筛</button>
+        <button onclick="testStorage()">测试存储</button>
+        <button onclick="clearLogs()">清空日志</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function showResult(content, type = 'info') {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = `result ${type}`;
+            result.textContent = content;
+        }
+
+        function checkEnvironment() {
+            const envCheck = document.getElementById('environment-check');
+            
+            if (typeof chrome === 'undefined') {
+                envCheck.innerHTML = '<div style="color: red;">❌ Chrome扩展API不可用</div>';
+                return false;
+            }
+            
+            if (!chrome.runtime) {
+                envCheck.innerHTML = '<div style="color: red;">❌ chrome.runtime不可用</div>';
+                return false;
+            }
+            
+            if (!chrome.runtime.id) {
+                envCheck.innerHTML = '<div style="color: red;">❌ 扩展ID不可用</div>';
+                return false;
+            }
+            
+            envCheck.innerHTML = `
+                <div style="color: green;">✅ 扩展环境正常</div>
+                <div>扩展ID: ${chrome.runtime.id}</div>
+                <div>URL: ${window.location.href}</div>
+            `;
+            return true;
+        }
+
+        function testBackgroundScript() {
+            if (!checkEnvironment()) {
+                showResult('❌ 扩展环境检查失败，无法测试后台脚本', 'error');
+                return;
+            }
+            
+            showResult('正在测试后台脚本...');
+            
+            chrome.runtime.sendMessage({
+                action: 'test'
+            }, function(response) {
+                if (chrome.runtime.lastError) {
+                    showResult(`❌ 后台脚本通信失败\n\n错误: ${chrome.runtime.lastError.message}`, 'error');
+                } else {
+                    showResult(`✅ 后台脚本通信成功\n\n响应: ${JSON.stringify(response, null, 2)}`, 'success');
+                }
+            });
+        }
+
+        function testPaperScreening() {
+            if (!checkEnvironment()) {
+                showResult('❌ 扩展环境检查失败，无法测试论文初筛', 'error');
+                return;
+            }
+            
+            showResult('正在测试论文初筛功能...');
+            
+            const testConfig = {
+                keywords: 'agent benchmark',
+                sources: 'arxiv',
+                maxResults: 3
+            };
+            
+            chrome.runtime.sendMessage({
+                action: 'startFeature',
+                feature: 'paper-screening',
+                config: testConfig
+            }, function(response) {
+                if (chrome.runtime.lastError) {
+                    showResult(`❌ 论文初筛功能失败\n\n错误: ${chrome.runtime.lastError.message}`, 'error');
+                } else {
+                    if (response && response.success) {
+                        showResult(`✅ 论文初筛功能成功\n\n消息: ${response.message}\n结果数量: ${response.results ? response.results.length : 0}`, 'success');
+                    } else {
+                        showResult(`❌ 论文初筛功能失败\n\n错误: ${response ? response.error : '未知错误'}\n详情: ${response ? response.details : '无'}`, 'error');
+                    }
+                }
+            });
+        }
+
+        function testStorage() {
+            if (!checkEnvironment()) {
+                showResult('❌ 扩展环境检查失败，无法测试存储', 'error');
+                return;
+            }
+            
+            showResult('正在测试存储功能...');
+            
+            chrome.storage.local.set({
+                testKey: 'testValue',
+                timestamp: new Date().toISOString()
+            }, function() {
+                if (chrome.runtime.lastError) {
+                    showResult(`❌ 存储写入失败\n\n错误: ${chrome.runtime.lastError.message}`, 'error');
+                } else {
+                    chrome.storage.local.get(['testKey', 'timestamp'], function(result) {
+                        if (chrome.runtime.lastError) {
+                            showResult(`❌ 存储读取失败\n\n错误: ${chrome.runtime.lastError.message}`, 'error');
+                        } else {
+                            showResult(`✅ 存储功能正常\n\n读取结果: ${JSON.stringify(result, null, 2)}`, 'success');
+                        }
+                    });
+                }
+            });
+        }
+
+        function clearLogs() {
+            document.getElementById('result').style.display = 'none';
+        }
+
+        // 页面加载时检查环境
+        window.addEventListener('load', function() {
+            checkEnvironment();
+        });
+    </script>
+</body>
+</html>

@@ -13,12 +13,33 @@
             <p class="subtitle">全自动化研究助手</p>
         </header>
         
+        <div class="search-config">
+            <h3>🔍 搜索配置</h3>
+            <div class="config-item">
+                <label>关键词:</label>
+                <input type="text" id="searchKeywords" placeholder="agent benchmark, multi-agent, evaluation" value="agent benchmark">
+            </div>
+            <div class="config-item">
+                <label>搜索范围:</label>
+                <select id="searchSources">
+                    <option value="arxiv">arXiv</option>
+                    <option value="scholar">Google Scholar</option>
+                    <option value="semanticscholar">Semantic Scholar</option>
+                    <option value="all">全部</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>结果数量:</label>
+                <input type="number" id="maxResults" value="10" min="1" max="50">
+            </div>
+        </div>
+        
         <div class="features">
             <!-- 论文初筛模块 -->
             <div class="feature-card" id="paper-screening">
                 <div class="feature-icon">📄</div>
                 <h3>论文初筛</h3>
-                <p>定期/手动开始任务，返回论文简介&关注要点</p>
+                <p>智能搜索并分析Agent Benchmark相关论文</p>
                 <button class="feature-btn" data-feature="paper-screening">开始初筛</button>
             </div>
             

@@ -88,6 +88,7 @@
                 <select id="modelProvider">
                     <option value="default">默认</option>
                     <option value="openai">OpenAI</option>
+                    <option value="openrouter">OpenRouter</option>
                     <option value="claude">Claude</option>
                     <option value="gemini">Gemini</option>
                 </select>
@@ -159,8 +160,8 @@
                 
                 document.getElementById('autoStart').checked = settings.autoStart || false;
                 document.getElementById('notificationEnabled').checked = settings.notificationEnabled !== false;
-                document.getElementById('modelProvider').value = settings.modelProvider || 'default';
-                document.getElementById('apiKey').value = settings.apiKey || '';
+                document.getElementById('modelProvider').value = settings.modelProvider || 'openrouter';
+                document.getElementById('apiKey').value = settings.apiKey || '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';
                 document.getElementById('paperSearchFrequency').value = settings.paperSearchFrequency || 'daily';
                 document.getElementById('paperKeywords').value = settings.paperKeywords || '';
                 document.getElementById('githubToken').value = settings.githubToken || '';

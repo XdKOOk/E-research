@@ -1,14 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "全自动化工作流for前沿探索",
+  "name": "前沿探索工作流-测试版",
   "version": "1.0.0",
-  "description": "用于前沿探索的全自动化工作流系统，包含论文初筛、Github调研、开源追踪三大功能模块",
+  "description": "用于前沿探索的全自动化工作流系统-测试版",
   "permissions": [
     "activeTab",
     "storage",
     "tabs",
-    "scripting",
-    "background"
+    "scripting"
   ],
   "host_permissions": [
     "https://github.com/*",
@@ -21,7 +20,7 @@
     "https://api.semanticscholar.org/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background-simple.js"
   },
   "content_scripts": [
     {
@@ -31,8 +30,8 @@
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "前沿探索工作流",
+    "default_popup": "popup-test.html",
+    "default_title": "前沿探索工作流-测试版",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
@@ -48,7 +47,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["assets/*", "extension-debug.html", "features/paper-screening/tools/*"],
+      "resources": ["assets/*", "extension-debug.html"],
       "matches": ["<all_urls>"]
     }
   ]

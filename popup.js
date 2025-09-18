@@ -34,6 +34,9 @@ function bindEventListeners() {
 function handleFeatureClick(feature) {
     console.log(`启动功能: ${feature}`);
     
+    // 获取搜索配置
+    const searchConfig = getSearchConfig();
+    
     // 更新按钮状态
     const button = document.querySelector(`[data-feature="${feature}"]`);
     const originalText = button.textContent;
@@ -43,7 +46,8 @@ function handleFeatureClick(feature) {
     // 发送消息到background script
     chrome.runtime.sendMessage({
         action: 'startFeature',
-        feature: feature
+        feature: feature,
+        config: searchConfig
     }, function(response) {
         // 恢复按钮状态
         button.textContent = originalText;
@@ -55,6 +59,14 @@ function handleFeatureClick(feature) {
             updateStatus(`${getFeatureName(feature)}任务启动失败`);
         }
     });
+}
+
+function getSearchConfig() {
+    return {
+        keywords: document.getElementById('searchKeywords').value,
+        sources: document.getElementById('searchSources').value,
+        maxResults: parseInt(document.getElementById('maxResults').value)
+    };
 }
 
 function getFeatureName(feature) {

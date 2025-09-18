@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API密钥测试 - 论文初筛功能</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .test-button:hover {
+            opacity: 0.9;
+        }
+        .test-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .api-key-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-indicator.success {
+            background: #28a745;
+        }
+        .status-indicator.error {
+            background: #dc3545;
+        }
+        .status-indicator.pending {
+            background: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 论文初筛功能 - API测试</h1>
+        
+        <div class="api-key-display">
+            <strong>当前API密钥:</strong><br>
+            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
+        </div>
+        
+        <div class="test-section">
+            <h3>1. API连接测试</h3>
+            <p>测试OpenAI API是否可用</p>
+            <button class="test-button" onclick="testAPIConnection()">测试API连接</button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. 论文分析测试</h3>
+            <p>使用示例论文测试完整的分析流程</p>
+            <button class="test-button" onclick="testPaperAnalysis()">测试论文分析</button>
+            <div id="analysis-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. 完整功能测试</h3>
+            <p>运行所有测试并生成报告</p>
+            <button class="test-button" onclick="runAllTests()">运行所有测试</button>
+            <div id="full-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. 测试状态</h3>
+            <div id="test-status">
+                <p><span class="status-indicator pending"></span>API连接测试: 待测试</p>
+                <p><span class="status-indicator pending"></span>论文分析测试: 待测试</p>
+                <p><span class="status-indicator pending"></span>完整功能测试: 待测试</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_KEY = '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';
+        
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = content;
+        }
+        
+        function updateStatus(testName, status) {
+            const statusElement = document.querySelector(`#test-status p:contains("${testName}")`);
+            if (statusElement) {
+                const indicator = statusElement.querySelector('.status-indicator');
+                indicator.className = `status-indicator ${status}`;
+                statusElement.innerHTML = statusElement.innerHTML.replace(/待测试|成功|失败/, 
+                    status === 'success' ? '成功' : status === 'error' ? '失败' : '待测试');
+            }
+        }
+        
+        async function testAPIConnection() {
+            showResult('api-result', '正在测试API连接...', 'info');
+            updateStatus('API连接测试', 'pending');
+            
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: '你是一个专业的学术论文分析助手。'
+                            },
+                            {
+                                role: 'user',
+                                content: '请简单介绍一下机器学习的基本概念。'
+                            }
+                        ],
+                        max_tokens: 100,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API错误: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const result = `✅ API连接成功！
+
+响应内容: ${data.choices[0].message.content}
+
+模型: ${data.model}
+使用tokens: ${data.usage.total_tokens}
+完成时间: ${new Date().toLocaleString()}`;
+                
+                showResult('api-result', result, 'success');
+                updateStatus('API连接测试', 'success');
+                
+            } catch (error) {
+                const result = `❌ API连接失败！
+
+错误信息: ${error.message}
+
+请检查:
+1. API密钥是否正确
+2. 网络连接是否正常
+3. OpenAI服务是否可用`;
+                
+                showResult('api-result', result, 'error');
+                updateStatus('API连接测试', 'error');
+            }
+        }
+        
+        async function testPaperAnalysis() {
+            showResult('analysis-result', '正在测试论文分析...', 'info');
+            updateStatus('论文分析测试', 'pending');
+            
+            const testPaperData = {
+                title: "Attention Is All You Need",
+                authors: ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar"],
+                abstract: "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.",
+                source: "arxiv",
+                year: 2017,
+                url: "https://arxiv.org/abs/1706.03762"
+            };
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: '你是一个专业的学术论文分析专家，擅长分析各种领域的学术论文并提供深入的分析报告。请始终以JSON格式返回分析结果。'
+                            },
+                            {
+                                role: 'user',
+                                content: `
+请分析以下论文，并提供详细的初筛报告：
+
+论文标题: ${testPaperData.title}
+作者: ${testPaperData.authors.join(', ')}
+摘要: ${testPaperData.abstract}
+来源: ${testPaperData.source}
+发表年份: ${testPaperData.year}
+
+请从以下维度进行分析，并以JSON格式返回结果：
+
+1. summary (论文简介): 用2-3句话概括论文的核心贡献
+2. keyPoints (关注要点): 列出3-5个最重要的技术要点
+3. innovationScore (创新性评分): 1-10分
+4. practicalScore (实用性评分): 1-10分
+5. impactScore (影响力评分): 1-10分
+6. relatedWork (相关研究): 简要说明与现有研究的关系
+7. methodology (方法论): 主要采用的研究方法
+8. limitations (局限性): 论文的主要局限性
+
+请确保返回的JSON格式正确。
+`
+                            }
+                        ],
+                        max_tokens: 1000,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API错误: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices[0].message.content;
+                
+                let result = `✅ 论文分析测试成功！
+
+分析结果:
+${content}
+
+使用tokens: ${data.usage.total_tokens}
+完成时间: ${new Date().toLocaleString()}`;
+                
+                // 尝试解析JSON
+                try {
+                    const analysisResult = JSON.parse(content);
+                    result += `\n\n✅ JSON解析成功！`;
+                } catch (e) {
+                    result += `\n\n⚠️ JSON解析失败，但API调用成功`;
+                }
+                
+                showResult('analysis-result', result, 'success');
+                updateStatus('论文分析测试', 'success');
+                
+            } catch (error) {
+                const result = `❌ 论文分析测试失败！
+
+错误信息: ${error.message}
+
+请检查:
+1. API密钥是否正确
+2. 网络连接是否正常
+3. 请求参数是否正确`;
+                
+                showResult('analysis-result', result, 'error');
+                updateStatus('论文分析测试', 'error');
+            }
+        }
+        
+        async function runAllTests() {
+            showResult('full-result', '正在运行所有测试...', 'info');
+            updateStatus('完整功能测试', 'pending');
+            
+            const results = [];
+            
+            // 测试1: API连接
+            try {
+                await testAPIConnection();
+                results.push('✅ API连接测试: 成功');
+            } catch (error) {
+                results.push(`❌ API连接测试: 失败 - ${error.message}`);
+            }
+            
+            // 等待1秒
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 测试2: 论文分析
+            try {
+                await testPaperAnalysis();
+                results.push('✅ 论文分析测试: 成功');
+            } catch (error) {
+                results.push(`❌ 论文分析测试: 失败 - ${error.message}`);
+            }
+            
+            // 生成报告
+            const successCount = results.filter(r => r.includes('✅')).length;
+            const totalCount = results.length;
+            
+            let report = `📊 完整功能测试报告
+
+测试时间: ${new Date().toLocaleString()}
+API密钥: ${API_KEY.substring(0, 20)}...
+
+测试结果:
+${results.join('\n')}
+
+总结:
+- 总测试数: ${totalCount}
+- 成功数: ${successCount}
+- 失败数: ${totalCount - successCount}
+- 成功率: ${Math.round(successCount / totalCount * 100)}%
+
+${successCount === totalCount ? 
+    '🎉 所有测试通过！论文初筛功能已准备就绪！' : 
+    '⚠️ 部分测试失败，请检查配置。'}`;
+            
+            showResult('full-result', report, successCount === totalCount ? 'success' : 'error');
+            updateStatus('完整功能测试', successCount === totalCount ? 'success' : 'error');
+        }
+        
+        // 页面加载完成后的提示
+        window.addEventListener('load', function() {
+            console.log('API测试页面已加载');
+            console.log('可用的测试函数:');
+            console.log('- testAPIConnection(): 测试API连接');
+            console.log('- testPaperAnalysis(): 测试论文分析');
+            console.log('- runAllTests(): 运行所有测试');
+        });
+    </script>
+</body>
+</html>

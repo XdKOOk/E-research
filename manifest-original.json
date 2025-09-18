@@ -48,7 +48,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["assets/*", "extension-debug.html", "features/paper-screening/tools/*"],
+      "resources": ["assets/*", "extension-debug.html"],
       "matches": ["<all_urls>"]
     }
   ]
