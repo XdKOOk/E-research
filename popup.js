@@ -122,6 +122,8 @@ function openSettings() {
     });
 }
 
+// 豆包API已内置，无需手动配置
+
 // 监听来自background script的消息
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'updateStatus') {
